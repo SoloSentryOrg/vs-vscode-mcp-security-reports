@@ -37,11 +37,16 @@ MAX_RETRIES = 2
 MAX_REDIRECTS = 5
 
 
+class TransientProbeError(ValidationError):
+    """A bounded network failure that is not proof of a broken citation."""
+
+
 @dataclass(frozen=True)
 class ProbeResult:
     url: str
     outcome: str
     detail: str
+    retryable: bool = False
 
 
 def display_url(value: str) -> str:
@@ -66,12 +71,29 @@ def resolve_public_addresses(
     port = parsed.port or 443
     try:
         answers = resolver(hostname, port, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        permanent_errors = {
+            value
+            for value in (
+                getattr(socket, "EAI_NONAME", None),
+                getattr(socket, "EAI_NODATA", None),
+            )
+            if value is not None
+        }
+        error_type = (
+            ValidationError
+            if exc.errno in permanent_errors
+            else TransientProbeError
+        )
+        raise error_type(f"DNS resolution failed for {hostname}: {exc}") from exc
     except OSError as exc:
-        raise ValidationError(
+        raise TransientProbeError(
             f"DNS resolution failed for {hostname}: {exc}"
         ) from exc
     if not answers:
-        raise ValidationError(f"DNS resolution returned no addresses for {hostname}")
+        raise TransientProbeError(
+            f"DNS resolution returned no addresses for {hostname}"
+        )
     addresses: set[str] = set()
     for answer in answers:
         address = ipaddress.ip_address(answer[4][0])
@@ -201,11 +223,19 @@ def fetch_status(
             )
             response = connection.getresponse()
             return int(response.status), response.getheader("Location")
-        except (OSError, ssl.SSLError, http.client.HTTPException) as exc:
+        except ssl.SSLCertVerificationError as exc:
+            raise ValidationError(
+                f"TLS certificate validation failed for {hostname}: {exc}"
+            ) from exc
+        except ssl.SSLError as exc:
+            raise ValidationError(
+                f"TLS connection failed for {hostname}: {exc}"
+            ) from exc
+        except (OSError, http.client.HTTPException) as exc:
             last_error = exc
         finally:
             connection.close()
-    raise ValidationError(
+    raise TransientProbeError(
         f"HTTPS connection failed for {hostname}: {last_error}"
     )
 
@@ -240,10 +270,19 @@ def probe_url(
                 continue
             if status in INDETERMINATE_HTTP_CODES:
                 return ProbeResult(shown, "indeterminate", f"HTTP {status}")
+            if 500 <= status < 600:
+                return ProbeResult(
+                    shown,
+                    "indeterminate",
+                    f"HTTP {status}",
+                    retryable=True,
+                )
             if 200 <= status < 400:
                 return ProbeResult(shown, "pass", f"HTTP {status}")
             return ProbeResult(shown, "fail", f"HTTP {status}")
         return ProbeResult(shown, "fail", "redirect limit exceeded")
+    except TransientProbeError as exc:
+        return ProbeResult(shown, "indeterminate", str(exc), retryable=True)
     except (OSError, ValidationError, ValueError) as exc:
         return ProbeResult(shown, "fail", str(exc))
 
@@ -253,13 +292,15 @@ def probe_with_retries(
     allowed_hosts: set[str],
     timeout: float,
     retries: int,
+    *,
+    probe: Callable[[str, set[str], float], ProbeResult] = probe_url,
 ) -> ProbeResult:
     result = ProbeResult(display_url(value), "fail", "not attempted")
     for _ in range(retries + 1):
-        result = probe_url(value, allowed_hosts, timeout)
-        if result.outcome != "fail" or result.detail in {"HTTP 404", "HTTP 410"}:
-            break
-    return result
+        result = probe(value, allowed_hosts, timeout)
+        if not result.retryable:
+            return result
+    return ProbeResult(result.url, "indeterminate", result.detail)
 
 
 def parse_args() -> argparse.Namespace:
