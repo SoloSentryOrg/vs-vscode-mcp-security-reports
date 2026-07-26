@@ -9,14 +9,16 @@ import json
 import re
 import stat
 import subprocess
-import sys
 import zipfile
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
+
 # ElementTree is safe here only after _read_xml rejects DTD/entity declarations
 # and the enclosing OOXML package enforces strict per-entry size bounds.
-from xml.etree import ElementTree as ET  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
-
+from xml.etree import (
+    ElementTree as ET,  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
+)
+from xml.parsers import expat
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "reports/index.json"
@@ -52,6 +54,7 @@ STATIC_PATHS = {
     ".gitattributes",
     ".github/CODEOWNERS",
     ".github/pull_request_template.md",
+    ".github/workflows/citation-link-monitor.yml",
     ".github/workflows/report-publication.yml",
     ".gitignore",
     "AGENTS.md",
@@ -64,6 +67,8 @@ STATIC_PATHS = {
     "reports/index.json",
     "scripts/allowed-docx-custom-xml.json",
     "scripts/allowed-hyperlink-hosts.json",
+    "scripts/check_external_links.py",
+    "scripts/test_check_external_links.py",
     "scripts/test_validate_public_reports.py",
     "scripts/validate_public_reports.py",
 }
@@ -243,13 +248,22 @@ def load_index(path: Path = INDEX) -> list[dict[str, object]]:
 def _read_xml(package: zipfile.ZipFile, name: str) -> ET.Element:
     try:
         raw = package.read(name)
-        lowered = raw.lower()
-        if b"<!doctype" in lowered or b"<!entity" in lowered:
-            raise ValidationError(f"DTD or entity declaration in DOCX part: {name}")
+        parser = expat.ParserCreate()
+
+        def reject_declaration(*args: object) -> None:
+            del args
+            raise ValidationError(
+                f"DTD or entity declaration in DOCX part: {name}"
+            )
+
+        parser.StartDoctypeDeclHandler = reject_declaration
+        parser.EntityDeclHandler = reject_declaration
+        parser.ExternalEntityRefHandler = reject_declaration
+        parser.Parse(raw, True)
         return ET.fromstring(raw)
     except KeyError as exc:
         raise ValidationError(f"missing required DOCX part: {name}") from exc
-    except ET.ParseError as exc:
+    except (ET.ParseError, expat.ExpatError) as exc:
         raise ValidationError(f"invalid XML in DOCX part: {name}") from exc
 
 
@@ -279,21 +293,19 @@ def external_target_is_safe(
         or parsed.password is not None
     ):
         return False
+    try:
+        if parsed.port not in (None, 443):
+            return False
+    except ValueError:
+        return False
     hostname = parsed.hostname.casefold().rstrip(".")
     if hostname == "localhost" or hostname.endswith(PRIVATE_HOST_SUFFIXES):
         return False
     try:
-        address = ipaddress.ip_address(hostname)
+        ipaddress.ip_address(hostname)
     except ValueError:
         return allowed_hosts is not None and hostname in allowed_hosts
-    return not (
-        address.is_private
-        or address.is_loopback
-        or address.is_link_local
-        or address.is_multicast
-        or address.is_reserved
-        or address.is_unspecified
-    )
+    return False
 
 
 def _validate_package_bounds(

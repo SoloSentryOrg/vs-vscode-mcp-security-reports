@@ -1,8 +1,22 @@
 # Visual Studio, VS Code, and MCP Security Assessment Reports
 
+[![Report Publication](https://github.com/SoloSentryOrg/vs-vscode-mcp-security-reports/actions/workflows/report-publication.yml/badge.svg)](https://github.com/SoloSentryOrg/vs-vscode-mcp-security-reports/actions/workflows/report-publication.yml)
+[![Citation Link Monitor](https://github.com/SoloSentryOrg/vs-vscode-mcp-security-reports/actions/workflows/citation-link-monitor.yml/badge.svg)](https://github.com/SoloSentryOrg/vs-vscode-mcp-security-reports/actions/workflows/citation-link-monitor.yml)
+
 This repository publishes final security assessment reports for Visual Studio,
 Visual Studio Code, Model Context Protocol (MCP), and related AI developer
-tooling.
+tooling. It is the public distribution point for completed, declassified
+reports—not the private assessment workspace or evidence archive.
+
+## Start here
+
+- Choose the report that matches the product and assessed version you use.
+- Confirm the assessment date and report version in the filename and document
+  control table.
+- Read the approval decision, limitations, and closure evidence before relying
+  on a report.
+- Treat each report as a dated assessment, not a product endorsement or a
+  guarantee of future security.
 
 ## Published reports
 
@@ -22,9 +36,24 @@ tooling.
 | HashiCorp Terraform MCP | 1.1.0 | [DOCX](<reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx>) |
 | Terraform MCP Server | 1.0.0 | [DOCX](<reports/Terraform/Terraform-MCP-Server-1.0.0-2026-07-17-v1.0.docx>) |
 
-The machine-readable catalogue is [reports/index.json](reports/index.json).
-Published file hashes are recorded in
+The machine-readable [report catalogue](reports/index.json) records product,
+version, assessment date, classification, Word page count, path, and SHA-256.
+Published hashes are also recorded in
 [reports/SHA256SUMS.txt](reports/SHA256SUMS.txt).
+
+## Verify a download
+
+From a clone of this repository, verify every published report:
+
+```shell
+shasum -a 256 -c reports/SHA256SUMS.txt
+python3 scripts/validate_public_reports.py
+```
+
+The validator checks the catalogue and hashes, repository allowlist, DOCX
+package bounds, classification, metadata, review artefacts, active content,
+external relationships, private paths, email addresses, and private network
+identifiers.
 
 ## Publication model
 
@@ -40,14 +69,22 @@ Published file hashes are recorded in
 - Superseded public reports remain in Git history. Corrections are published as
   new, versioned reports.
 
-## Verification
+## Publication controls
 
-Run:
+- Changes use signed commits and protected pull requests.
+- The required Report Publication Gate runs offline and fail closed.
+- `main` requires the strict publication check and resolved review threads.
+- GitHub CodeQL, secret scanning, validity checks, and push protection provide
+  additional repository-level controls.
+- External citation availability is monitored weekly in a separate read-only
+  workflow. Link drift does not silently change a report or its assessment
+  decision.
 
-```shell
-python3 scripts/validate_public_reports.py
-python3 -m unittest discover -s scripts -p 'test_*.py'
-```
+## What is not published
+
+Source snapshots, raw evidence, stage output, drafts, internal logs, private
+paths, credentials, personal data, and private assessment Git history are
+excluded from this repository.
 
 ## Reporting concerns
 
