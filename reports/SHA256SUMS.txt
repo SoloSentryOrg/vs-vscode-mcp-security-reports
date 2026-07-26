@@ -1,0 +1,13 @@
+0e7a8b932afd64550ba237fe008902382a0cf57254e290b657ed333a7872c11d  reports/Azure DevOps MCP Local/Microsoft-Azure-DevOps-MCP-Local-2.8.1-2026-07-25-v1.1.docx
+a15c6e64f3be3a0000d66f9125568f3dae1b88a8481695c1a2100db99c4118ae  reports/Azure DevOps MCP Remote/Microsoft-Azure-DevOps-MCP-Remote-Preview-2026-07-25-v1.1.docx
+f8d7481008d966c92e782483196e41744c20df6ab352b8d6c72676cf2b2c08cc  reports/Chrome DevTools MCP/Google-Chrome-DevTools-MCP-1.6.0-2026-07-25-v1.1.docx
+ca91f97b85d963470e067fd9ffbe7cb0c8e30aa53191224970986c8158d89e5e  reports/Dynatrace MCP Server Hosted/Dynatrace-Hosted-MCP-current-2026-07-25-v1.1.docx
+bcfb1c4afad3ad80991574a192987c0876490cfb6b9b5eb3473a59ddcb6accde  reports/Dynatrace MCP Server Local/Dynatrace-Local-MCP-2.1.1-2026-07-25-v1.1.docx
+35125670aea8358061d599c77e1ab9d86fdf23903a90a8334701ce7735000292  reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx
+87c45fed43602d8feb1172cc979205eb71f47c0605c3382a4b7eabc2998cc9b8  reports/HashiCorp Terraform/HashiCorp-Terraform-VS-Code-2.39.4-2026-07-17-v1.0.docx
+7a0488f08f5ef57378fffb66a23ecb10dd5b567afca0836570f60e46379e4036  reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx
+826fe36bd22877068e7e449cf4c343ca506518b3154cc35a9cb85d2a5b31ac23  reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx
+ea0c915f064177eb17a260b26bc7d997f84a5279ffd11801605d7247689ceff4  reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx
+ad580b6144d20a81358bc5bedb799b73c8dd9e2330948ff0142d0d03c847bd0e  reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx
+bd509f7b988370ea0935a28f4057ecc946561cb21eceee4f74ea8f953e0afaf3  reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx
+96e6920ecb06bfc04f056a7758e43de5f8f181ecbf5718bab3d5e3a0a0b7a6ef  reports/Terraform/Terraform-MCP-Server-1.0.0-2026-07-17-v1.0.docx

@@ -1,0 +1,53 @@
+name: Report Publication
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: report-publication-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Report Publication Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REPORT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate repository hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_sha="${REPORT_BASE_SHA}"
+          if [[ -z "${base_sha}" || "${base_sha}" =~ ^0+$ ]]; then
+            if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+              base_sha="$(git rev-parse HEAD^)"
+            else
+              git show --check --format= HEAD
+              exit 0
+            fi
+          fi
+          git diff --check "${base_sha}...HEAD"
+
+      - name: Compile validator
+        run: python3 -m compileall -q scripts
+
+      - name: Run validator tests
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
+      - name: Validate published reports
+        run: python3 scripts/validate_public_reports.py
