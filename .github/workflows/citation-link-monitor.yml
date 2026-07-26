@@ -1,0 +1,40 @@
+name: Citation Link Monitor
+
+on:
+  schedule:
+    - cron: "23 06 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: citation-link-monitor
+  cancel-in-progress: true
+
+jobs:
+  links:
+    name: Citation Link Monitor
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Compile monitor and validator
+        run: python3 -m compileall -q scripts
+
+      - name: Run offline unit tests
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
+      - name: Validate published reports
+        run: python3 scripts/validate_public_reports.py
+
+      - name: Check reviewed external citation links
+        run: >-
+          python3 scripts/check_external_links.py
+          --timeout 10
+          --workers 8
+          --retries 1

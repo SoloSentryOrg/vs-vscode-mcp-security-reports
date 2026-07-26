@@ -13,7 +13,6 @@ from validate_public_reports import (
     validate_docx,
 )
 
-
 CONTENT_TYPES = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -103,6 +102,9 @@ class PublicReportValidationTests(unittest.TestCase):
             external_target_is_safe("https://127.0.0.1/report", allowed)
         )
         self.assertFalse(
+            external_target_is_safe("https://93.184.216.34/report", allowed)
+        )
+        self.assertFalse(
             external_target_is_safe("https://user@docs.github.com/report", allowed)
         )
 
@@ -125,6 +127,20 @@ class PublicReportValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "report.docx"
             write_docx(path, document=DOCUMENT_WITH_ENTITY)
+            failures = validate_docx(path, set())
+            self.assertIn(
+                "DTD or entity declaration in DOCX part: word/document.xml",
+                failures,
+            )
+
+    def test_utf16_dtd_and_entity_declarations_are_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.docx"
+            document = DOCUMENT_WITH_ENTITY.replace(
+                'encoding="UTF-8"',
+                'encoding="UTF-16"',
+            ).encode("utf-16")
+            write_docx(path, document=document)
             failures = validate_docx(path, set())
             self.assertIn(
                 "DTD or entity declaration in DOCX part: word/document.xml",
@@ -173,6 +189,21 @@ class PublicReportValidationTests(unittest.TestCase):
             self.assertIn(
                 "unsafe external hyperlink: "
                 "https://attacker.invalid/credential-harvest",
+                failures,
+            )
+
+    def test_public_ip_literal_hyperlink_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.docx"
+            relationships = RELATIONSHIPS.replace(
+                "http://example.com/report",
+                "https://93.184.216.34/credential-harvest",
+            )
+            write_docx(path, relationships=relationships)
+            failures = validate_docx(path, set(), {"docs.github.com"})
+            self.assertIn(
+                "unsafe external hyperlink: "
+                "https://93.184.216.34/credential-harvest",
                 failures,
             )
 
