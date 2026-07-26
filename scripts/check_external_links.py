@@ -373,7 +373,7 @@ def main() -> int:
         return 1
     print(
         f"PASS: {len(results)} reviewed external links checked; "
-        f"{len(indeterminate)} access-controlled or rate-limited"
+        f"{len(indeterminate)} indeterminate warning(s)"
     )
     return 0
 
