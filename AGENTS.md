@@ -13,9 +13,14 @@
 
 ## Publication contract
 
-- Place each report at `reports/<assessment-name>/<versioned-report>.docx`.
-- Add exactly one matching entry to `reports/index.json`.
-- Regenerate `reports/SHA256SUMS.txt` atomically.
+- Use `scripts/import_publication_bundle.py` as the only supported report and
+  catalogue mutation path.
+- Accept only a v1 bundle containing exactly `release.json` and one DOCX.
+- Import one report per pull request and preserve byte identity with the
+  validated bundle report.
+- Treat the README report table as generated content.
+- Require a separate governance pull request for new hyperlink-host or
+  custom-XML allowlist entries before importing a dependent report.
 - Reject unclassified or unexpected tracked paths.
 - Reject symlinks, macros, embedded objects, active content, comments, tracked
   revisions, unsafe external relationships, private metadata, and non-public

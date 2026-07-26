@@ -20,6 +20,7 @@ reports—not the private assessment workspace or evidence archive.
 
 ## Published reports
 
+<!-- BEGIN GENERATED REPORT CATALOGUE -->
 | Assessment | Assessed version | Report |
 | --- | --- | --- |
 | Azure DevOps MCP Local | 2.8.1 | [DOCX](<reports/Azure DevOps MCP Local/Microsoft-Azure-DevOps-MCP-Local-2.8.1-2026-07-25-v1.1.docx>) |
@@ -29,12 +30,13 @@ reports—not the private assessment workspace or evidence archive.
 | Dynatrace MCP Server Local | 2.1.1 | [DOCX](<reports/Dynatrace MCP Server Local/Dynatrace-Local-MCP-2.1.1-2026-07-25-v1.1.docx>) |
 | GitHub MCP | 1.7.0 | [DOCX](<reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx>) |
 | HashiCorp Terraform for VS Code | 2.39.4 | [DOCX](<reports/HashiCorp Terraform/HashiCorp-Terraform-VS-Code-2.39.4-2026-07-17-v1.0.docx>) |
-| Microsoft MarkItDown MCP | 0.0.1a4 | [DOCX](<reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx>) |
-| Microsoft Learn MCP | Current at assessment | [DOCX](<reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx>) |
-| Microsoft Playwright MCP | 0.0.78 | [DOCX](<reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx>) |
-| Netdata MCP | 2.10.4 | [DOCX](<reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx>) |
 | HashiCorp Terraform MCP | 1.1.0 | [DOCX](<reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx>) |
+| Microsoft Learn MCP | Current at assessment | [DOCX](<reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx>) |
+| Microsoft MarkItDown MCP | 0.0.1a4 | [DOCX](<reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx>) |
+| Microsoft Playwright MCP 0.0.78 | 0.0.78 | [DOCX](<reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx>) |
+| Netdata MCP | 2.10.4 | [DOCX](<reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx>) |
 | Terraform MCP Server | 1.0.0 | [DOCX](<reports/Terraform/Terraform-MCP-Server-1.0.0-2026-07-17-v1.0.docx>) |
+<!-- END GENERATED REPORT CATALOGUE -->
 
 The machine-readable [report catalogue](reports/index.json) records product,
 version, assessment date, classification, Word page count, path, and SHA-256.
@@ -72,6 +74,17 @@ identifiers.
 ## Publication controls
 
 - Changes use signed commits and protected pull requests.
+- The report table above is generated from `reports/index.json`; do not edit it
+  by hand.
+- `python3 scripts/import_publication_bundle.py <bundle-directory>` is the only
+  supported way to add a report and update the catalogue, checksums, and README.
+- Publication bundles contain exactly `release.json` and one byte-identical
+  DOCX. The importer validates the bundle before mutating repository content
+  and never retains producer provenance or the bundle manifest.
+- New hyperlink hosts or custom-XML digests require a separate reviewed
+  governance pull request before a report that depends on them is imported.
+- Report publication remains pull-request- and human-merge-controlled; the
+  importer never commits, pushes, opens, or merges a pull request.
 - The required Report Publication Gate runs offline and fail closed.
 - `main` requires the strict publication check and resolved review threads.
 - GitHub CodeQL, secret scanning, validity checks, and push protection provide
