@@ -6,10 +6,13 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from validate_public_reports import (
+    allowlist_publication_conflict,
     external_target_is_safe,
     safe_relative,
+    validate_allowlist_change_separation,
     validate_docx,
 )
 
@@ -81,6 +84,40 @@ def write_docx(
 
 
 class PublicReportValidationTests(unittest.TestCase):
+    def test_allowlist_and_report_changes_must_be_separate(self) -> None:
+        self.assertTrue(
+            allowlist_publication_conflict(
+                {
+                    "scripts/allowed-hyperlink-hosts.json",
+                    "reports/New/report.docx",
+                }
+            )
+        )
+        self.assertTrue(
+            allowlist_publication_conflict(
+                {
+                    "scripts/allowed-docx-custom-xml.json",
+                    "reports/index.json",
+                }
+            )
+        )
+        self.assertFalse(
+            allowlist_publication_conflict(
+                {"scripts/allowed-hyperlink-hosts.json", "README.md"}
+            )
+        )
+
+    def test_pull_request_without_base_sha_fails_closed(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {"GITHUB_EVENT_NAME": "pull_request", "REPORT_BASE_SHA": ""},
+            clear=False,
+        ):
+            self.assertIn(
+                "REPORT_BASE_SHA is required for pull-request allowlist review",
+                validate_allowlist_change_separation(),
+            )
+
     def test_safe_relative_rejects_escape_and_backslash(self) -> None:
         for value in ("../private.docx", "/tmp/private.docx", r"reports\\bad.docx"):
             with self.subTest(value=value):
@@ -92,15 +129,11 @@ class PublicReportValidationTests(unittest.TestCase):
         self.assertTrue(
             external_target_is_safe("https://docs.github.com/report", allowed)
         )
-        self.assertFalse(
-            external_target_is_safe("https://example.com/report", allowed)
-        )
+        self.assertFalse(external_target_is_safe("https://example.com/report", allowed))
         self.assertFalse(
             external_target_is_safe("http://docs.github.com/report", allowed)
         )
-        self.assertFalse(
-            external_target_is_safe("https://127.0.0.1/report", allowed)
-        )
+        self.assertFalse(external_target_is_safe("https://127.0.0.1/report", allowed))
         self.assertFalse(
             external_target_is_safe("https://93.184.216.34/report", allowed)
         )
@@ -160,8 +193,7 @@ class PublicReportValidationTests(unittest.TestCase):
             path = Path(directory) / "report.docx"
             document = DOCUMENT.replace(
                 "</w:body>",
-                "<w:p><w:r><w:t>/Users/private/report.docx</w:t></w:r></w:p>"
-                "</w:body>",
+                "<w:p><w:r><w:t>/Users/private/report.docx</w:t></w:r></w:p></w:body>",
             )
             write_docx(path, document=document)
             failures = validate_docx(path, set())
@@ -202,8 +234,7 @@ class PublicReportValidationTests(unittest.TestCase):
             write_docx(path, relationships=relationships)
             failures = validate_docx(path, set(), {"docs.github.com"})
             self.assertIn(
-                "unsafe external hyperlink: "
-                "https://93.184.216.34/credential-harvest",
+                "unsafe external hyperlink: https://93.184.216.34/credential-harvest",
                 failures,
             )
 

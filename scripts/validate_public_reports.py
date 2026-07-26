@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import ipaddress
 import json
+import os
 import re
 import stat
 import subprocess
@@ -20,9 +21,17 @@ from xml.etree import (
 )
 from xml.parsers import expat
 
+from publication_catalogue import (
+    CATALOGUE_BEGIN,
+    CATALOGUE_END,
+    CatalogueError,
+    render_catalogue_table,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "reports/index.json"
 SUMS = ROOT / "reports/SHA256SUMS.txt"
+README = ROOT / "README.md"
 CUSTOM_XML_ALLOWLIST = Path(__file__).with_name("allowed-docx-custom-xml.json")
 HYPERLINK_HOST_ALLOWLIST = Path(__file__).with_name(
     "allowed-hyperlink-hosts.json"
@@ -65,12 +74,20 @@ STATIC_PATHS = {
     "SECURITY.md",
     "reports/SHA256SUMS.txt",
     "reports/index.json",
+    "schemas/publication-bundle-v1.schema.json",
     "scripts/allowed-docx-custom-xml.json",
     "scripts/allowed-hyperlink-hosts.json",
     "scripts/check_external_links.py",
+    "scripts/import_publication_bundle.py",
+    "scripts/publication_catalogue.py",
     "scripts/test_check_external_links.py",
+    "scripts/test_import_publication_bundle.py",
     "scripts/test_validate_public_reports.py",
     "scripts/validate_public_reports.py",
+}
+TRUST_ALLOWLIST_PATHS = {
+    "scripts/allowed-docx-custom-xml.json",
+    "scripts/allowed-hyperlink-hosts.json",
 }
 ACTIVE_PART_PREFIXES = (
     "word/activex/",
@@ -555,6 +572,52 @@ def candidate_paths(root: Path = ROOT) -> set[str]:
     }
 
 
+def allowlist_publication_conflict(changed_paths: set[str]) -> bool:
+    publication_changed = bool(
+        changed_paths & {"reports/index.json", "reports/SHA256SUMS.txt"}
+    ) or any(
+        value.startswith("reports/") and value.casefold().endswith(".docx")
+        for value in changed_paths
+    )
+    return bool(changed_paths & TRUST_ALLOWLIST_PATHS) and publication_changed
+
+
+def validate_allowlist_change_separation() -> list[str]:
+    event = os.environ.get("GITHUB_EVENT_NAME", "")
+    base = os.environ.get("REPORT_BASE_SHA", "")
+    if event == "pull_request" and not base:
+        return ["REPORT_BASE_SHA is required for pull-request allowlist review"]
+    if not base:
+        return []
+    if not re.fullmatch(r"[0-9a-f]{40}", base):
+        return ["REPORT_BASE_SHA must be a full lowercase commit SHA"]
+    exists = subprocess.run(
+        ["git", "cat-file", "-e", f"{base}^{{commit}}"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        timeout=30,
+    )
+    if exists.returncode != 0:
+        return ["REPORT_BASE_SHA does not identify an available commit"]
+    separator = "..." if event == "pull_request" else ".."
+    result = subprocess.run(
+        ["git", "diff", "--name-only", "-z", f"{base}{separator}HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        timeout=30,
+    )
+    changed = {
+        value.decode("utf-8", errors="strict")
+        for value in result.stdout.split(b"\0")
+        if value
+    }
+    if allowlist_publication_conflict(changed):
+        return ["trust allowlists and report content require separate pull requests"]
+    return []
+
+
 def main() -> int:
     failures: list[str] = []
     try:
@@ -623,6 +686,25 @@ def main() -> int:
 
     if sums != expected_sums:
         failures.append("SHA256SUMS.txt does not exactly match the report catalogue")
+
+    try:
+        failures.extend(validate_allowlist_change_separation())
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError) as exc:
+        failures.append(f"allowlist change-separation validation failed: {exc}")
+
+    try:
+        readme = README.read_text(encoding="utf-8")
+        rendered = render_catalogue_table(reports)
+        if (
+            readme.count(CATALOGUE_BEGIN) != 1
+            or readme.count(CATALOGUE_END) != 1
+            or rendered not in readme
+        ):
+            failures.append(
+                "README generated catalogue does not exactly match the report index"
+            )
+    except (OSError, UnicodeDecodeError, CatalogueError) as exc:
+        failures.append(f"README catalogue validation failed: {exc}")
 
     actual_paths = candidate_paths()
     allowed_paths = STATIC_PATHS | expected_paths
