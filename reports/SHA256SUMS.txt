@@ -1,6 +1,7 @@
 0e7a8b932afd64550ba237fe008902382a0cf57254e290b657ed333a7872c11d  reports/Azure DevOps MCP Local/Microsoft-Azure-DevOps-MCP-Local-2.8.1-2026-07-25-v1.1.docx
 a15c6e64f3be3a0000d66f9125568f3dae1b88a8481695c1a2100db99c4118ae  reports/Azure DevOps MCP Remote/Microsoft-Azure-DevOps-MCP-Remote-Preview-2026-07-25-v1.1.docx
 f8d7481008d966c92e782483196e41744c20df6ab352b8d6c72676cf2b2c08cc  reports/Chrome DevTools MCP/Google-Chrome-DevTools-MCP-1.6.0-2026-07-25-v1.1.docx
+a79cce93a41751523ed3d87f76565f24d2e8270d01718752efa1f4dd08070d92  reports/Claude Code for VS Code/Claude-Code-for-VS-Code-2.1.220-VSCode-2026-07-26-v1.0.docx
 ca91f97b85d963470e067fd9ffbe7cb0c8e30aa53191224970986c8158d89e5e  reports/Dynatrace MCP Server Hosted/Dynatrace-Hosted-MCP-current-2026-07-25-v1.1.docx
 bcfb1c4afad3ad80991574a192987c0876490cfb6b9b5eb3473a59ddcb6accde  reports/Dynatrace MCP Server Local/Dynatrace-Local-MCP-2.1.1-2026-07-25-v1.1.docx
 35125670aea8358061d599c77e1ab9d86fdf23903a90a8334701ce7735000292  reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx
