@@ -14,6 +14,7 @@ import import_publication_bundle as importer
 from publication_catalogue import (
     CATALOGUE_BEGIN,
     CATALOGUE_END,
+    REPORT_FIELD_ORDER,
     render_catalogue_table,
 )
 from test_validate_public_reports import RELATIONSHIPS, write_docx
@@ -105,6 +106,13 @@ class PublicationBundleImporterTests(unittest.TestCase):
         destination = self.root / release["report"]["path"]
         self.assertEqual(destination.read_bytes(), before)
         first_index = (self.root / "reports/index.json").read_bytes()
+        rendered_index = json.loads(first_index)
+        self.assertTrue(
+            all(
+                tuple(report) == REPORT_FIELD_ORDER
+                for report in rendered_index["reports"]
+            )
+        )
         first_sums = (self.root / "reports/SHA256SUMS.txt").read_bytes()
         first_readme = (self.root / "README.md").read_bytes()
         self.assertEqual(
