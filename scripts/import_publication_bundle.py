@@ -55,6 +55,7 @@ HEX_64 = re.compile(r"[0-9a-f]{64}")
 VERSION = re.compile(r"\d+\.\d+")
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 SAFE_COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9 ._()+-]*")
+REQUEST_ASSESSMENT_COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9 ._()+:-]*")
 MAX_RELEASE_BYTES = 64 * 1024
 
 
@@ -173,7 +174,7 @@ def _validate_report(
         raise ImportError("invalid public-safe request ID")
     request_assessment, request_run_key = request_id.rsplit("/", 1)
     if (
-        not SAFE_COMPONENT.fullmatch(request_assessment)
+        not REQUEST_ASSESSMENT_COMPONENT.fullmatch(request_assessment)
         or not RUN_KEY.fullmatch(request_run_key)
         or request_run_key != f"{report['assessment_date']}-v{report['report_version']}"
     ):
