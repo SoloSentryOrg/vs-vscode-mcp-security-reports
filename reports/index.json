@@ -34,6 +34,16 @@
       "word_pages": 17
     },
     {
+      "assessment": "Claude Code for VS Code",
+      "target_version": "2.1.220",
+      "assessment_date": "2026-07-26",
+      "report_version": "1.0",
+      "classification": "PUBLIC",
+      "path": "reports/Claude Code for VS Code/Claude-Code-for-VS-Code-2.1.220-VSCode-2026-07-26-v1.0.docx",
+      "sha256": "a79cce93a41751523ed3d87f76565f24d2e8270d01718752efa1f4dd08070d92",
+      "word_pages": 35
+    },
+    {
       "assessment": "Dynatrace MCP Server Hosted",
       "target_version": "Current at assessment",
       "assessment_date": "2026-07-25",
@@ -74,14 +84,14 @@
       "word_pages": 27
     },
     {
-      "assessment": "Microsoft MarkItDown MCP",
-      "target_version": "0.0.1a4",
+      "assessment": "HashiCorp Terraform MCP",
+      "target_version": "1.1.0",
       "assessment_date": "2026-07-25",
       "report_version": "1.1",
       "classification": "PUBLIC",
-      "path": "reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx",
-      "sha256": "7a0488f08f5ef57378fffb66a23ecb10dd5b567afca0836570f60e46379e4036",
-      "word_pages": 14
+      "path": "reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx",
+      "sha256": "bd509f7b988370ea0935a28f4057ecc946561cb21eceee4f74ea8f953e0afaf3",
+      "word_pages": 31
     },
     {
       "assessment": "Microsoft Learn MCP",
@@ -92,6 +102,16 @@
       "path": "reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx",
       "sha256": "826fe36bd22877068e7e449cf4c343ca506518b3154cc35a9cb85d2a5b31ac23",
       "word_pages": 27
+    },
+    {
+      "assessment": "Microsoft MarkItDown MCP",
+      "target_version": "0.0.1a4",
+      "assessment_date": "2026-07-25",
+      "report_version": "1.1",
+      "classification": "PUBLIC",
+      "path": "reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx",
+      "sha256": "7a0488f08f5ef57378fffb66a23ecb10dd5b567afca0836570f60e46379e4036",
+      "word_pages": 14
     },
     {
       "assessment": "Microsoft Playwright MCP 0.0.78",
@@ -112,16 +132,6 @@
       "path": "reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx",
       "sha256": "ad580b6144d20a81358bc5bedb799b73c8dd9e2330948ff0142d0d03c847bd0e",
       "word_pages": 27
-    },
-    {
-      "assessment": "HashiCorp Terraform MCP",
-      "target_version": "1.1.0",
-      "assessment_date": "2026-07-25",
-      "report_version": "1.1",
-      "classification": "PUBLIC",
-      "path": "reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx",
-      "sha256": "bd509f7b988370ea0935a28f4057ecc946561cb21eceee4f74ea8f953e0afaf3",
-      "word_pages": 31
     },
     {
       "assessment": "Terraform MCP Server",

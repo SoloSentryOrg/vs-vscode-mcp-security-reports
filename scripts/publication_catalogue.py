@@ -15,7 +15,7 @@ INDEX_FIELDS = {
     "publication_model",
     "reports",
 }
-REPORT_FIELDS = {
+REPORT_FIELD_ORDER = (
     "assessment",
     "target_version",
     "assessment_date",
@@ -24,7 +24,8 @@ REPORT_FIELDS = {
     "path",
     "sha256",
     "word_pages",
-}
+)
+REPORT_FIELDS = set(REPORT_FIELD_ORDER)
 REPOSITORY = "SoloSentryOrg/vs-vscode-mcp-security-reports"
 
 
@@ -89,7 +90,10 @@ def render_index(reports: list[dict[str, object]]) -> str:
         "schema_version": 1,
         "repository": REPOSITORY,
         "publication_model": "report-only-default-deny",
-        "reports": sorted_reports(reports),
+        "reports": [
+            {field: report[field] for field in REPORT_FIELD_ORDER}
+            for report in sorted_reports(reports)
+        ],
     }
     return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
 

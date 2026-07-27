@@ -26,6 +26,7 @@ reports—not the private assessment workspace or evidence archive.
 | Azure DevOps MCP Local | 2.8.1 | [DOCX](<reports/Azure DevOps MCP Local/Microsoft-Azure-DevOps-MCP-Local-2.8.1-2026-07-25-v1.1.docx>) |
 | Azure DevOps MCP Remote | Preview | [DOCX](<reports/Azure DevOps MCP Remote/Microsoft-Azure-DevOps-MCP-Remote-Preview-2026-07-25-v1.1.docx>) |
 | Chrome DevTools MCP | 1.6.0 | [DOCX](<reports/Chrome DevTools MCP/Google-Chrome-DevTools-MCP-1.6.0-2026-07-25-v1.1.docx>) |
+| Claude Code for VS Code | 2.1.220 | [DOCX](<reports/Claude Code for VS Code/Claude-Code-for-VS-Code-2.1.220-VSCode-2026-07-26-v1.0.docx>) |
 | Dynatrace MCP Server Hosted | Current at assessment | [DOCX](<reports/Dynatrace MCP Server Hosted/Dynatrace-Hosted-MCP-current-2026-07-25-v1.1.docx>) |
 | Dynatrace MCP Server Local | 2.1.1 | [DOCX](<reports/Dynatrace MCP Server Local/Dynatrace-Local-MCP-2.1.1-2026-07-25-v1.1.docx>) |
 | GitHub MCP | 1.7.0 | [DOCX](<reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx>) |
