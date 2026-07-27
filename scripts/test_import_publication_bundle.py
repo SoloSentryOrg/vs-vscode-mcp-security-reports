@@ -127,9 +127,29 @@ class PublicationBundleImporterTests(unittest.TestCase):
 
     def test_public_safe_request_id_may_differ_from_display_name(self) -> None:
         release = self._write_bundle()
-        release["request_id"] = "Marketplace Folder/2026-07-26-v1.0"
+        release["request_id"] = (
+            "Serena MCP: the IDE for your agent/2026-07-26-v1.0"
+        )
         (self.bundle / "release.json").write_text(json.dumps(release), encoding="utf-8")
         self.assertTrue(importer.import_bundle(self.bundle).startswith("IMPORTED:"))
+
+    def test_request_id_rejects_unsafe_private_assessment_components(self) -> None:
+        for assessment in (
+            "Serena/escape",
+            "Serena\nInjected",
+            "Serena | injected",
+            ":Serena",
+        ):
+            with self.subTest(assessment=assessment):
+                release = self._write_bundle()
+                release["request_id"] = f"{assessment}/2026-07-26-v1.0"
+                (self.bundle / "release.json").write_text(
+                    json.dumps(release), encoding="utf-8"
+                )
+                with self.assertRaisesRegex(
+                    importer.ImportError, "request ID does not match"
+                ):
+                    importer.import_bundle(self.bundle)
 
     def test_check_only_does_not_mutate(self) -> None:
         self._write_bundle()
