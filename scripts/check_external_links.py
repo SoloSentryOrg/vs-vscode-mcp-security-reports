@@ -31,7 +31,7 @@ USER_AGENT = (
     "SoloSentry-public-report-link-monitor/1.0 "
     "(https://github.com/SoloSentryOrg/vs-vscode-mcp-security-reports)"
 )
-INDETERMINATE_HTTP_CODES = {401, 403, 429}
+INDETERMINATE_HTTP_CODES = {401, 403, 405, 429}
 MAX_WORKERS = 16
 MAX_RETRIES = 2
 MAX_REDIRECTS = 5
