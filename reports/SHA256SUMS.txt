@@ -10,5 +10,6 @@ bcfb1c4afad3ad80991574a192987c0876490cfb6b9b5eb3473a59ddcb6accde  reports/Dynatr
 826fe36bd22877068e7e449cf4c343ca506518b3154cc35a9cb85d2a5b31ac23  reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx
 ea0c915f064177eb17a260b26bc7d997f84a5279ffd11801605d7247689ceff4  reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx
 ad580b6144d20a81358bc5bedb799b73c8dd9e2330948ff0142d0d03c847bd0e  reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx
+2045787700924488210de2b7339f5ae2ffd5f949dbbf5fa138c5dcf26286dfda  reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.0.docx
 bd509f7b988370ea0935a28f4057ecc946561cb21eceee4f74ea8f953e0afaf3  reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx
 96e6920ecb06bfc04f056a7758e43de5f8f181ecbf5718bab3d5e3a0a0b7a6ef  reports/Terraform/Terraform-MCP-Server-1.0.0-2026-07-17-v1.0.docx
