@@ -151,21 +151,25 @@ class ExternalLinkMonitorTests(unittest.TestCase):
         )
         self.assertEqual(result, ProbeResult(value, "pass", "HTTP 200"))
 
-    def test_probe_url_marks_access_control_indeterminate(self) -> None:
+    def test_probe_url_marks_access_or_method_restriction_indeterminate(
+        self,
+    ) -> None:
         value = "https://docs.github.com/example"
-        result = probe_url(
-            value,
-            {"docs.github.com"},
-            1,
-            resolver=public_resolver,
-            connection_factory=lambda *args: FakeConnection(
-                FakeResponse(status=403)
-            ),
-        )
-        self.assertEqual(
-            result,
-            ProbeResult(value, "indeterminate", "HTTP 403"),
-        )
+        for status in (401, 403, 405, 429):
+            with self.subTest(status=status):
+                result = probe_url(
+                    value,
+                    {"docs.github.com"},
+                    1,
+                    resolver=public_resolver,
+                    connection_factory=lambda *args, code=status: FakeConnection(
+                        FakeResponse(status=code)
+                    ),
+                )
+                self.assertEqual(
+                    result,
+                    ProbeResult(value, "indeterminate", f"HTTP {status}"),
+                )
 
     def test_probe_url_marks_timeout_retryable(self) -> None:
         value = "https://docs.github.com/example"
