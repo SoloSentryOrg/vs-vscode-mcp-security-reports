@@ -144,6 +144,16 @@
       "word_pages": 26
     },
     {
+      "assessment": "PostgreSQL",
+      "target_version": "1.26.0",
+      "assessment_date": "2026-07-29",
+      "report_version": "1.1",
+      "classification": "PUBLIC",
+      "path": "reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.1.docx",
+      "sha256": "7447ff30b8d9c7bc1b734f406490db3b949470553dddf2a549233a647d90e426",
+      "word_pages": 27
+    },
+    {
       "assessment": "Serena MCP",
       "target_version": "1.6.1",
       "assessment_date": "2026-07-27",
