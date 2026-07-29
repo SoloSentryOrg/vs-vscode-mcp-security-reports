@@ -16,6 +16,7 @@ from check_external_links import (
     probe_url,
     probe_with_retries,
     resolve_public_addresses,
+    select_current_reports,
 )
 from validate_public_reports import ValidationError
 
@@ -106,6 +107,68 @@ def fake_connection_factory(
 
 
 class ExternalLinkMonitorTests(unittest.TestCase):
+    def test_select_current_reports_uses_latest_report_version(self) -> None:
+        reports = [
+            self._report("PostgreSQL", "1.26.0", "2026-07-29", "1.0"),
+            self._report("PostgreSQL", "1.26.0", "2026-07-29", "1.1"),
+        ]
+        self.assertEqual(
+            [record["report_version"] for record in select_current_reports(reports)],
+            ["1.1"],
+        )
+
+    def test_select_current_reports_prefers_newer_assessment_date(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "9.9"),
+            self._report("Example", "1.0.0", "2026-07-30", "1.0"),
+        ]
+        self.assertEqual(
+            [record["assessment_date"] for record in select_current_reports(reports)],
+            ["2026-07-30"],
+        )
+
+    def test_select_current_reports_keeps_distinct_targets(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "1.0"),
+            self._report("Example", "2.0.0", "2026-07-29", "1.0"),
+        ]
+        self.assertEqual(len(select_current_reports(reports)), 2)
+
+    def test_select_current_reports_rejects_ambiguous_rank(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "1.0", "one"),
+            self._report("Example", "1.0.0", "2026-07-29", "1.0", "two"),
+        ]
+        with self.assertRaises(ValidationError):
+            select_current_reports(reports)
+
+    def test_select_current_reports_rejects_malformed_record(self) -> None:
+        with self.assertRaises(ValidationError):
+            select_current_reports([{"assessment": "Example"}])
+
+    def test_select_current_reports_rejects_noncanonical_date(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "20260729", "1.0"),
+        ]
+        with self.assertRaises(ValidationError):
+            select_current_reports(reports)
+
+    @staticmethod
+    def _report(
+        assessment: str,
+        target_version: str,
+        assessment_date: str,
+        report_version: str,
+        suffix: str = "report",
+    ) -> dict[str, object]:
+        return {
+            "assessment": assessment,
+            "target_version": target_version,
+            "assessment_date": assessment_date,
+            "report_version": report_version,
+            "path": f"reports/{assessment}/{suffix}.docx",
+        }
+
     def test_display_url_removes_query_and_fragment(self) -> None:
         self.assertEqual(
             display_url("https://docs.github.com/path?token=value#section"),
