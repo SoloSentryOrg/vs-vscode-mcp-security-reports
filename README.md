@@ -36,6 +36,7 @@ reports—not the private assessment workspace or evidence archive.
 | Microsoft MarkItDown MCP | 0.0.1a4 | [DOCX](<reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx>) |
 | Microsoft Playwright MCP 0.0.78 | 0.0.78 | [DOCX](<reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx>) |
 | Netdata MCP | 2.10.4 | [DOCX](<reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx>) |
+| PostgreSQL | 1.26.0 | [DOCX](<reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.0.docx>) |
 | Serena MCP | 1.6.1 | [DOCX](<reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.0.docx>) |
 | Terraform MCP Server | 1.0.0 | [DOCX](<reports/Terraform/Terraform-MCP-Server-1.0.0-2026-07-17-v1.0.docx>) |
 <!-- END GENERATED REPORT CATALOGUE -->
