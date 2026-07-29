@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import http.client
 import ipaddress
+import re
 import socket
 import ssl
 import zipfile
@@ -166,18 +168,88 @@ def collect_report_links(path: Path, allowed_hosts: set[str]) -> set[str]:
     return links
 
 
+def select_current_reports(
+    reports: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    """Select one deterministic current report per assessment and target."""
+    selected: dict[
+        tuple[str, str],
+        tuple[tuple[datetime.date, int, int], dict[str, object]],
+    ] = {}
+    for index, record in enumerate(reports, start=1):
+        if not isinstance(record, dict):
+            raise ValidationError(
+                f"report record {index} cannot be ranked for citation monitoring"
+            )
+        assessment = record.get("assessment")
+        target_version = record.get("target_version")
+        assessment_date = record.get("assessment_date")
+        report_version = record.get("report_version")
+        path = record.get("path")
+        if (
+            not isinstance(assessment, str)
+            or not assessment.strip()
+            or not isinstance(target_version, str)
+            or not target_version.strip()
+            or not isinstance(assessment_date, str)
+            or not isinstance(report_version, str)
+            or not isinstance(path, str)
+            or not path
+        ):
+            raise ValidationError(
+                f"report record {index} cannot be ranked for citation monitoring"
+            )
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", assessment_date):
+            raise ValidationError(
+                f"report record {index} has invalid assessment date"
+            )
+        try:
+            parsed_date = datetime.date.fromisoformat(assessment_date)
+        except ValueError as exc:
+            raise ValidationError(
+                f"report record {index} has invalid assessment date"
+            ) from exc
+        match = re.fullmatch(r"(\d+)\.(\d+)", report_version)
+        if not match:
+            raise ValidationError(
+                f"report record {index} has invalid report version"
+            )
+        rank = (parsed_date, int(match.group(1)), int(match.group(2)))
+        key = (assessment, target_version)
+        prior = selected.get(key)
+        if prior is not None and prior[0] == rank:
+            raise ValidationError(
+                "ambiguous current report for "
+                f"{assessment} {target_version}: {prior[1]['path']} and {path}"
+            )
+        if prior is None or rank > prior[0]:
+            selected[key] = (rank, record)
+    return [
+        selected[key][1]
+        for key in sorted(
+            selected,
+            key=lambda value: (value[0].casefold(), value[1].casefold()),
+        )
+    ]
+
+
 def collect_links() -> tuple[set[str], set[str]]:
     allowed_hosts = load_hyperlink_host_allowlist()
     allowed_custom_xml = load_custom_xml_allowlist()
+    reports = load_index()
+    current_paths = {
+        str(record["path"]) for record in select_current_reports(reports)
+    }
     links: set[str] = set()
-    for record in load_index():
+    for record in reports:
         path = regular_file(ROOT, str(record["path"]))
         failures = validate_docx(path, allowed_custom_xml, allowed_hosts)
         if failures:
             raise ValidationError(
                 f"{record['path']} failed DOCX validation: {failures}"
             )
-        links.update(collect_report_links(path, allowed_hosts))
+        if str(record["path"]) in current_paths:
+            links.update(collect_report_links(path, allowed_hosts))
     return links, allowed_hosts
 
 
