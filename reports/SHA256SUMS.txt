@@ -13,5 +13,6 @@ ad580b6144d20a81358bc5bedb799b73c8dd9e2330948ff0142d0d03c847bd0e  reports/Netdat
 f37f4c15b226c3077ef4eb23da7b1b2bd1487e96b89be2ef3601388314079b70  reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.0.docx
 7447ff30b8d9c7bc1b734f406490db3b949470553dddf2a549233a647d90e426  reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.1.docx
 2045787700924488210de2b7339f5ae2ffd5f949dbbf5fa138c5dcf26286dfda  reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.0.docx
+72017abe683a678656ed42bb8653c9b39c3247562eaaa8196d9a93b558b6cd9c  reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.1.docx
 bd509f7b988370ea0935a28f4057ecc946561cb21eceee4f74ea8f953e0afaf3  reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx
 96e6920ecb06bfc04f056a7758e43de5f8f181ecbf5718bab3d5e3a0a0b7a6ef  reports/Terraform/Terraform-MCP-Server-1.0.0-2026-07-17-v1.0.docx
