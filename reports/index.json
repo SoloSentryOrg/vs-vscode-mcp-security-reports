@@ -24,6 +24,16 @@
       "word_pages": 17
     },
     {
+      "assessment": "Blackbox Agent - Coding Copilot",
+      "target_version": "3.7.0",
+      "assessment_date": "2026-08-01",
+      "report_version": "1.0",
+      "classification": "PUBLIC",
+      "path": "reports/Blackbox Agent - Coding Copilot/Blackbox-Agent-Coding-Copilot-3.7.0-VSCode-2026-08-01-v1.0.docx",
+      "sha256": "51b213465f70cd0c3c0f3890a7612f537a937df0d4ded9b41fd6daee904ba585",
+      "word_pages": 32
+    },
+    {
       "assessment": "Chrome DevTools MCP",
       "target_version": "1.6.0",
       "assessment_date": "2026-07-25",
