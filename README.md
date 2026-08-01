@@ -33,6 +33,7 @@ reports—not the private assessment workspace or evidence archive.
 | GitHub MCP | 1.7.0 | [DOCX](<reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx>) |
 | HashiCorp Terraform for VS Code | 2.39.4 | [DOCX](<reports/HashiCorp Terraform/HashiCorp-Terraform-VS-Code-2.39.4-2026-07-17-v1.0.docx>) |
 | HashiCorp Terraform MCP | 1.1.0 | [DOCX](<reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx>) |
+| Kimi Code | 0.6.7 | [DOCX](<reports/Kimi Code/Kimi-Code-0.6.7-VSCode-2026-08-01-v1.1.docx>) |
 | Microsoft Learn MCP | Current at assessment | [DOCX](<reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx>) |
 | Microsoft MarkItDown MCP | 0.0.1a4 | [DOCX](<reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx>) |
 | Microsoft Playwright MCP 0.0.78 | 0.0.78 | [DOCX](<reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx>) |

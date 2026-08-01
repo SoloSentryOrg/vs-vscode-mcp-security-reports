@@ -7,6 +7,7 @@ ca91f97b85d963470e067fd9ffbe7cb0c8e30aa53191224970986c8158d89e5e  reports/Dynatr
 bcfb1c4afad3ad80991574a192987c0876490cfb6b9b5eb3473a59ddcb6accde  reports/Dynatrace MCP Server Local/Dynatrace-Local-MCP-2.1.1-2026-07-25-v1.1.docx
 35125670aea8358061d599c77e1ab9d86fdf23903a90a8334701ce7735000292  reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx
 87c45fed43602d8feb1172cc979205eb71f47c0605c3382a4b7eabc2998cc9b8  reports/HashiCorp Terraform/HashiCorp-Terraform-VS-Code-2.39.4-2026-07-17-v1.0.docx
+f6cd9dea05589ca27061e569b14f9f94a577b17ce39359cf1fd3bfdbb7e1e44e  reports/Kimi Code/Kimi-Code-0.6.7-VSCode-2026-08-01-v1.1.docx
 7a0488f08f5ef57378fffb66a23ecb10dd5b567afca0836570f60e46379e4036  reports/Markitdown/Microsoft-MarkItDown-MCP-0.0.1a4-2026-07-25-v1.1.docx
 826fe36bd22877068e7e449cf4c343ca506518b3154cc35a9cb85d2a5b31ac23  reports/Microsoft Learn MCP/Microsoft-Learn-MCP-VSCode-VisualStudio-current-2026-07-25-v1.1.docx
 ea0c915f064177eb17a260b26bc7d997f84a5279ffd11801605d7247689ceff4  reports/Microsoft Playwright MCP 0.0.78/Microsoft-Playwright-MCP-0.0.78-2026-07-25-v1.1.docx
