@@ -1,3 +1,4 @@
+dc2499dfe04397ab86e47f9eda57efc7eb63471d370ac849e72c8b68f536619f  reports/Augment Code for Visual Studio Code/Augment-Code-for-Visual-Studio-Code-0.890.3-VSCode-2026-08-01-v1.0.docx
 0e7a8b932afd64550ba237fe008902382a0cf57254e290b657ed333a7872c11d  reports/Azure DevOps MCP Local/Microsoft-Azure-DevOps-MCP-Local-2.8.1-2026-07-25-v1.1.docx
 a15c6e64f3be3a0000d66f9125568f3dae1b88a8481695c1a2100db99c4118ae  reports/Azure DevOps MCP Remote/Microsoft-Azure-DevOps-MCP-Remote-Preview-2026-07-25-v1.1.docx
 51b213465f70cd0c3c0f3890a7612f537a937df0d4ded9b41fd6daee904ba585  reports/Blackbox Agent - Coding Copilot/Blackbox-Agent-Coding-Copilot-3.7.0-VSCode-2026-08-01-v1.0.docx
