@@ -24,6 +24,7 @@ reports—not the private assessment workspace or evidence archive.
 | Assessment | Assessed version | Report |
 | --- | --- | --- |
 | Augment Code for Visual Studio Code | 0.890.3 | [DOCX](<reports/Augment Code for Visual Studio Code/Augment-Code-for-Visual-Studio-Code-0.890.3-VSCode-2026-08-01-v1.0.docx>) |
+| Augment Code for Visual Studio Code | 0.890.3 | [DOCX](<reports/Augment Code for Visual Studio Code/Augment-Code-for-Visual-Studio-Code-0.890.3-VSCode-2026-08-01-v1.1.docx>) |
 | Azure DevOps MCP Local | 2.8.1 | [DOCX](<reports/Azure DevOps MCP Local/Microsoft-Azure-DevOps-MCP-Local-2.8.1-2026-07-25-v1.1.docx>) |
 | Azure DevOps MCP Remote | Preview | [DOCX](<reports/Azure DevOps MCP Remote/Microsoft-Azure-DevOps-MCP-Remote-Preview-2026-07-25-v1.1.docx>) |
 | Blackbox Agent - Coding Copilot | 3.7.0 | [DOCX](<reports/Blackbox Agent - Coding Copilot/Blackbox-Agent-Coding-Copilot-3.7.0-VSCode-2026-08-01-v1.0.docx>) |
