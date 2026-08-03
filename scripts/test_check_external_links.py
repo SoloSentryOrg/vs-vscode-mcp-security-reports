@@ -218,7 +218,7 @@ class ExternalLinkMonitorTests(unittest.TestCase):
         self,
     ) -> None:
         value = "https://docs.github.com/example"
-        for status in (401, 403, 405, 429):
+        for status in (401, 403, 405, 416, 429):
             with self.subTest(status=status):
                 result = probe_url(
                     value,
