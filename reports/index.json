@@ -94,6 +94,16 @@
       "word_pages": 22
     },
     {
+      "assessment": "Figma for VS Code",
+      "target_version": "0.4.5",
+      "assessment_date": "2026-08-03",
+      "report_version": "1.0",
+      "classification": "PUBLIC",
+      "path": "reports/Figma for VS Code/Figma-for-VS-Code-0.4.5-VSCode-2026-08-03-v1.0.docx",
+      "sha256": "53ea2656fe527aeb7a93447a5113f8dbb54837944683ee2e9e2542bd74672e8e",
+      "word_pages": 36
+    },
+    {
       "assessment": "GitHub MCP",
       "target_version": "1.7.0",
       "assessment_date": "2026-07-25",

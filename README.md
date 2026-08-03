@@ -32,6 +32,7 @@ reports—not the private assessment workspace or evidence archive.
 | Claude Code for VS Code | 2.1.220 | [DOCX](<reports/Claude Code for VS Code/Claude-Code-for-VS-Code-2.1.220-VSCode-2026-07-26-v1.0.docx>) |
 | Dynatrace MCP Server Hosted | Current at assessment | [DOCX](<reports/Dynatrace MCP Server Hosted/Dynatrace-Hosted-MCP-current-2026-07-25-v1.1.docx>) |
 | Dynatrace MCP Server Local | 2.1.1 | [DOCX](<reports/Dynatrace MCP Server Local/Dynatrace-Local-MCP-2.1.1-2026-07-25-v1.1.docx>) |
+| Figma for VS Code | 0.4.5 | [DOCX](<reports/Figma for VS Code/Figma-for-VS-Code-0.4.5-VSCode-2026-08-03-v1.0.docx>) |
 | GitHub MCP | 1.7.0 | [DOCX](<reports/GitHub/GitHub-MCP-1.7.0-VSCode-VisualStudio-2026-07-25-v1.0.docx>) |
 | HashiCorp Terraform for VS Code | 2.39.4 | [DOCX](<reports/HashiCorp Terraform/HashiCorp-Terraform-VS-Code-2.39.4-2026-07-17-v1.0.docx>) |
 | HashiCorp Terraform MCP | 1.1.0 | [DOCX](<reports/Terraform MCP Server 1.1.0/HashiCorp-Terraform-MCP-1.1.0-2026-07-25-v1.1.docx>) |
