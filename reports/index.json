@@ -224,6 +224,16 @@
       "word_pages": 19
     },
     {
+      "assessment": "SonarQube MCP Server",
+      "target_version": "1.24.0.3152",
+      "assessment_date": "2026-08-05",
+      "report_version": "1.2",
+      "classification": "PUBLIC",
+      "path": "reports/SonarQube MCP Server/SonarQube-MCP-Server-1.24.0.3152-VSCode-VisualStudio-2026-08-05-v1.2.docx",
+      "sha256": "f8a31e4219284a00dffc78eb97843291bc623101b1cb0ee00de9f9f1f570852b",
+      "word_pages": 45
+    },
+    {
       "assessment": "Terraform MCP Server",
       "target_version": "1.0.0",
       "assessment_date": "2026-07-17",
