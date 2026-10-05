@@ -36,6 +36,7 @@ from validate_public_reports import (
     sha256,
     validate_docx,
 )
+from citation_policy_binding import PolicyError, bounded_file, strict_json, validate_policy_binding
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "reports/index.json"
@@ -100,13 +101,16 @@ def _load_release(bundle: Path) -> tuple[dict[str, object], Path]:
     if release_path.stat().st_size > MAX_RELEASE_BYTES:
         raise ImportError("release.json is oversized")
     try:
-        release = json.loads(release_path.read_text(encoding="utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        release = strict_json(bounded_file(release_path, MAX_RELEASE_BYTES))
+    except (UnicodeDecodeError, json.JSONDecodeError, PolicyError) as exc:
         raise ImportError(f"invalid release.json: {exc}") from exc
-    if not isinstance(release, dict) or set(release) != RELEASE_FIELDS:
+    if not isinstance(release, dict):
         raise ImportError("release.json has missing or unexpected fields")
-    if release["schema_version"] != 1:
+    version = release.get("schema_version")
+    if type(version) is not int or version not in {1, 2}:
         raise ImportError("unsupported publication bundle schema")
+    if set(release) != RELEASE_FIELDS | ({"citation_policy"} if version == 2 else set()):
+        raise ImportError("release.json has missing or unexpected fields")
     if release["consumer_repository"] != REPOSITORY:
         raise ImportError("bundle targets the wrong consumer repository")
     if not isinstance(release["producer_revision"], str) or not HEX_40.fullmatch(
@@ -125,7 +129,8 @@ def _load_release(bundle: Path) -> tuple[dict[str, object], Path]:
 
 
 def _validate_report(
-    release: dict[str, object], report_path: Path
+    release: dict[str, object], report_path: Path, *, allowed_hosts: set[str] | None = None,
+    historical_findings: list[str] | None = None
 ) -> dict[str, object]:
     report = release["report"]
     if not isinstance(report, dict) or set(report) != REPORT_FIELDS:
@@ -187,9 +192,11 @@ def _validate_report(
     failures = validate_docx(
         report_path,
         load_custom_xml_allowlist(),
-        load_hyperlink_host_allowlist(),
+        load_hyperlink_host_allowlist() if allowed_hosts is None else allowed_hosts,
     )
-    if failures:
+    if historical_findings is not None:
+        historical_findings.extend(failures)
+    elif failures:
         raise ImportError("report validation failed: " + "; ".join(failures))
     return report
 
@@ -321,7 +328,53 @@ def _import_bundle_locked(bundle: Path, *, check_only: bool = False) -> str:
     if bundle.is_symlink():
         raise ImportError("bundle must be a regular non-symlink directory")
     release, report_path = _load_release(bundle.absolute())
-    report = _validate_report(release, report_path)
+    if release["schema_version"] != 2:
+        raise ImportError("new imports require a policy-bound v2 bundle; use --inspect-legacy for read-only v1 inspection")
+    with _report_snapshot(report_path) as snapshot:
+        return _import_snapshot_locked(release, snapshot, check_only=check_only)
+
+
+@contextlib.contextmanager
+def _report_snapshot(report_path: Path) -> Iterator[Path]:
+    """Hash, inspect and copy one bounded acquisition from private staging."""
+    try:
+        content = bounded_file(report_path, MAX_PACKAGE_BYTES)
+    except PolicyError as exc:
+        raise ImportError("bundle report acquisition failed") from exc
+    with tempfile.TemporaryDirectory(prefix="solosentry-report-snapshot-") as directory:
+        snapshot = Path(directory) / report_path.name
+        with snapshot.open("xb") as stream:
+            stream.write(content)
+        os.chmod(snapshot, 0o400)
+        yield snapshot
+
+
+def inspect_legacy_bundle(bundle: Path) -> str:
+    """Read archived v1 bytes without granting current readiness or importing."""
+    release, report_path = _load_release(bundle.absolute())
+    if release["schema_version"] != 1:
+        raise ImportError("legacy inspection requires a v1 bundle")
+    with _report_snapshot(report_path) as snapshot:
+        findings = []
+        _validate_report(release, snapshot, historical_findings=findings)
+    return ("INSPECTED: historical v1 digest/metadata; current safety observations: "
+            f"{len(findings)}; not current import readiness")
+
+
+def _import_snapshot_locked(release: dict[str, object], report_path: Path, *, check_only: bool = False) -> str:
+    allowed_hosts = None
+    if release["schema_version"] == 2:
+        try:
+            allowed_hosts = validate_policy_binding(release["citation_policy"], ROOT)
+        except (PolicyError, OSError) as exc:
+            raise ImportError("bundle consumer policy verification failed") from exc
+    report = _validate_report(release, report_path, allowed_hosts=allowed_hosts)
+    if release["schema_version"] == 2:
+        try:
+            if validate_policy_binding(release["citation_policy"], ROOT) != allowed_hosts:
+                raise PolicyError("policy changed during report validation")
+        except (PolicyError, OSError) as exc:
+            raise ImportError("consumer policy changed before catalogue preparation") from exc
     payload = read_index_payload(INDEX)
     reports = payload["reports"]
     assert isinstance(reports, list)
@@ -395,9 +448,16 @@ def main() -> int:
         action="store_true",
         help="validate the bundle without modifying the repository",
     )
+    parser.add_argument("--inspect-legacy", action="store_true",
+                        help="inspect historical v1 bytes without current readiness or repository mutation")
     arguments = parser.parse_args()
     try:
-        print(import_bundle(arguments.bundle, check_only=arguments.check))
+        if arguments.inspect_legacy:
+            if arguments.check:
+                parser.error("--check and --inspect-legacy are mutually exclusive")
+            print(inspect_legacy_bundle(arguments.bundle))
+        else:
+            print(import_bundle(arguments.bundle, check_only=arguments.check))
     except (OSError, json.JSONDecodeError, CatalogueError, ImportError) as exc:
         print(f"FAIL: {exc}")
         return 1

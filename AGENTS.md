@@ -15,7 +15,16 @@
 
 - Use `scripts/import_publication_bundle.py` as the only supported report and
   catalogue mutation path.
-- Accept only a v1 bundle containing exactly `release.json` and one DOCX.
+- New imports and readiness checks require a policy-bound v2 bundle containing
+  exactly `release.json` and one DOCX. Independently verify the exact consumer policy commit and
+  digest against current protected `main` before report validation and again
+  before catalogue preparation; require the local host policy to match it.
+- Bundle policy metadata must not add hosts or replace independent DOCX
+  validation. Keep private QA paths, approvals and evidence out of the bundle.
+- Preserve read-only v1 inspection through `--inspect-legacy`; historical
+  inspection must not grant current readiness or mutate the catalogue.
+- Acquire report bytes once with bounded no-follow reads into private staging;
+  hash, validate and import that same snapshot rather than reopening bundle bytes.
 - Import one report per pull request and preserve byte identity with the
   validated bundle report.
 - Treat the README report table as generated content.
