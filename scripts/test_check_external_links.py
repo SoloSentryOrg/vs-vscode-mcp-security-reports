@@ -8,15 +8,18 @@ import unittest
 import zipfile
 from pathlib import Path
 from ssl import SSLCertVerificationError
+from unittest.mock import patch
 
 from check_external_links import (
     ProbeResult,
+    collect_links,
     collect_report_links,
     display_url,
     probe_url,
     probe_with_retries,
     resolve_public_addresses,
     select_current_reports,
+    select_report_paths,
 )
 from validate_public_reports import ValidationError
 
@@ -153,6 +156,85 @@ class ExternalLinkMonitorTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             select_current_reports(reports)
 
+    def test_named_selection_accepts_exact_current_public_path(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "1.0", "old"),
+            self._report("Example", "1.0.0", "2026-07-30", "1.1", "current"),
+            self._report("Other", "1.0.0", "2026-07-30", "1.0"),
+        ]
+        self.assertEqual(
+            select_report_paths(reports, "reports/Example/current.docx"),
+            {"reports/Example/current.docx"},
+        )
+
+    def test_named_selection_rejects_unknown_unsafe_and_historical_paths(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "1.0", "old"),
+            self._report("Example", "1.0.0", "2026-07-30", "1.1", "current"),
+        ]
+        for value in (
+            "reports/Example/missing.docx", "reports/Example/old.docx",
+            "../reports/Example/current.docx", "/reports/Example/current.docx",
+            "reports/Example/../Example/current.docx",
+            "reports//Example/current.docx", "reports/Example/./current.docx",
+            "reports\\Example\\current.docx", "",
+        ):
+            with self.subTest(path=value), self.assertRaises(ValidationError):
+                select_report_paths(reports, value)
+
+    def test_named_selection_rejects_non_public_record(self) -> None:
+        record = self._report("Example", "1.0.0", "2026-07-30", "1.0")
+        record["classification"] = "INTERNAL"
+        with self.assertRaises(ValidationError):
+            select_report_paths([record], str(record["path"]))
+
+    def test_default_selection_keeps_all_current_reports(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "1.0", "old"),
+            self._report("Example", "1.0.0", "2026-07-30", "1.1", "current"),
+            self._report("Other", "1.0.0", "2026-07-30", "1.0"),
+        ]
+        self.assertEqual(select_report_paths(reports), {
+            "reports/Example/current.docx", "reports/Other/report.docx",
+        })
+
+    def test_named_collection_validates_every_report_before_selecting_links(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-29", "1.0", "old"),
+            self._report("Example", "1.0.0", "2026-07-30", "1.1", "current"),
+            self._report("Other", "1.0.0", "2026-07-30", "1.0"),
+        ]
+        selected = "reports/Example/current.docx"
+        with (
+            patch("check_external_links.load_index", return_value=reports),
+            patch("check_external_links.load_hyperlink_host_allowlist", return_value={"docs.github.com"}),
+            patch("check_external_links.load_custom_xml_allowlist", return_value=set()),
+            patch("check_external_links.regular_file", side_effect=lambda root, value: Path(value)),
+            patch("check_external_links.validate_docx", return_value=[]) as validate,
+            patch("check_external_links.collect_report_links", return_value={"https://docs.github.com/test"}) as collect,
+        ):
+            links, hosts = collect_links(selected)
+            self.assertEqual(validate.call_count, 3)
+            collect.assert_called_once_with(Path(selected), hosts)
+            self.assertEqual(links, {"https://docs.github.com/test"})
+
+    def test_named_collection_rejects_invalid_unselected_docx(self) -> None:
+        reports = [
+            self._report("Example", "1.0.0", "2026-07-30", "1.0"),
+            self._report("Other", "1.0.0", "2026-07-30", "1.0"),
+        ]
+        with (
+            patch("check_external_links.load_index", return_value=reports),
+            patch("check_external_links.load_hyperlink_host_allowlist", return_value=set()),
+            patch("check_external_links.load_custom_xml_allowlist", return_value=set()),
+            patch("check_external_links.regular_file", side_effect=lambda root, value: Path(value)),
+            patch("check_external_links.validate_docx", side_effect=[[], ["unsafe relationship"]]),
+            patch("check_external_links.collect_report_links") as collect,
+        ):
+            with self.assertRaises(ValidationError):
+                collect_links(str(reports[0]["path"]))
+            collect.assert_not_called()
+
     @staticmethod
     def _report(
         assessment: str,
@@ -162,6 +244,7 @@ class ExternalLinkMonitorTests(unittest.TestCase):
         suffix: str = "report",
     ) -> dict[str, object]:
         return {
+            "classification": "PUBLIC",
             "assessment": assessment,
             "target_version": target_version,
             "assessment_date": assessment_date,

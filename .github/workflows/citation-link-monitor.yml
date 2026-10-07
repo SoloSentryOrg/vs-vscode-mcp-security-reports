@@ -1,15 +1,21 @@
 name: Citation Link Monitor
+run-name: ${{ inputs.report_path && format('Citation Link Monitor: {0}', inputs.report_path) || 'Citation Link Monitor' }}
 
 on:
   schedule:
     - cron: "23 06 * * 1"
   workflow_dispatch:
+    inputs:
+      report_path:
+        description: Exact current indexed PUBLIC report path; blank checks the current catalogue
+        required: false
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: citation-link-monitor
+  group: ${{ inputs.report_path && format('citation-link-monitor-report:{0}', inputs.report_path) || 'citation-link-monitor-catalogue' }}
   cancel-in-progress: true
 
 jobs:
@@ -33,8 +39,11 @@ jobs:
         run: python3 scripts/validate_public_reports.py
 
       - name: Check reviewed external citation links
-        run: >-
-          python3 scripts/check_external_links.py
-          --timeout 10
-          --workers 8
-          --retries 1
+        env:
+          REPORT_PATH: ${{ inputs.report_path }}
+        run: |
+          args=(--timeout 10 --workers 8 --retries 1)
+          if [ -n "$REPORT_PATH" ]; then
+            args+=(--report-path "$REPORT_PATH")
+          fi
+          python3 scripts/check_external_links.py "${args[@]}"

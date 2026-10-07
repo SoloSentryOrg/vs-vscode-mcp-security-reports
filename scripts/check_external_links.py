@@ -26,6 +26,7 @@ from validate_public_reports import (
     load_hyperlink_host_allowlist,
     load_index,
     regular_file,
+    safe_relative,
     validate_docx,
 )
 
@@ -236,14 +237,30 @@ def select_current_reports(
     ]
 
 
-def collect_links() -> tuple[set[str], set[str]]:
+def select_report_paths(
+    reports: list[dict[str, object]], report_path: str | None = None,
+) -> set[str]:
+    """Limit probes to an exact current PUBLIC report, or the current catalogue."""
+    current_reports = select_current_reports(reports)
+    if report_path is not None:
+        relative = safe_relative(report_path)
+        if relative.as_posix() != report_path:
+            raise ValidationError("--report-path must be an exact indexed path")
+        current_reports = [
+            record for record in current_reports if record["path"] == report_path
+        ]
+        if len(current_reports) != 1:
+            raise ValidationError("--report-path must name one current indexed report")
+    if any(record.get("classification") != "PUBLIC" for record in current_reports):
+        raise ValidationError("citation monitoring requires PUBLIC reports")
+    return {str(record["path"]) for record in current_reports}
+
+
+def collect_links(report_path: str | None = None) -> tuple[set[str], set[str]]:
     allowed_hosts = load_hyperlink_host_allowlist()
     allowed_custom_xml = load_custom_xml_allowlist()
     reports = load_index()
-    current_paths = {
-        str(record["path"]) for record in select_current_reports(reports)
-    }
-    links: set[str] = set()
+    validated_paths: dict[str, Path] = {}
     for record in reports:
         path = regular_file(ROOT, str(record["path"]))
         failures = validate_docx(path, allowed_custom_xml, allowed_hosts)
@@ -251,8 +268,13 @@ def collect_links() -> tuple[set[str], set[str]]:
             raise ValidationError(
                 f"{record['path']} failed DOCX validation: {failures}"
             )
-        if str(record["path"]) in current_paths:
-            links.update(collect_report_links(path, allowed_hosts))
+        validated_paths[str(record["path"])] = path
+    # Selection affects network probes only. Every indexed DOCX still passes
+    # the same archive, relationship, metadata and PUBLIC-classification gate.
+    current_paths = select_report_paths(reports, report_path)
+    links: set[str] = set()
+    for value in sorted(current_paths):
+        links.update(collect_report_links(validated_paths[value], allowed_hosts))
     return links, allowed_hosts
 
 
@@ -383,6 +405,10 @@ def parse_args() -> argparse.Namespace:
         description="Check reviewed external DOCX citation links."
     )
     parser.add_argument(
+        "--report-path",
+        help="Exact current indexed PUBLIC report path (default: current catalogue).",
+    )
+    parser.add_argument(
         "--timeout",
         type=float,
         default=10.0,
@@ -415,7 +441,7 @@ def main() -> int:
         print(f"FAIL: --retries must be between 0 and {MAX_RETRIES}")
         return 2
     try:
-        links, allowed_hosts = collect_links()
+        links, allowed_hosts = collect_links(args.report_path)
     except (OSError, KeyError, ValidationError, ValueError) as exc:
         print(f"FAIL: {exc}")
         return 1
