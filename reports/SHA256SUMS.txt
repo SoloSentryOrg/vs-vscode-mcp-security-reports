@@ -17,6 +17,7 @@ ea0c915f064177eb17a260b26bc7d997f84a5279ffd11801605d7247689ceff4  reports/Micros
 ad580b6144d20a81358bc5bedb799b73c8dd9e2330948ff0142d0d03c847bd0e  reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx
 f37f4c15b226c3077ef4eb23da7b1b2bd1487e96b89be2ef3601388314079b70  reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.0.docx
 7447ff30b8d9c7bc1b734f406490db3b949470553dddf2a549233a647d90e426  reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.1.docx
+99e48658ace67792d9068fdc6dee7d667269239cf5ac07f4a7bd2513bf81e954  reports/Postman MCP Server/Postman-MCP-Server-VSCode-VisualStudio-2.13.0-2026-10-07-v1.0.docx
 2045787700924488210de2b7339f5ae2ffd5f949dbbf5fa138c5dcf26286dfda  reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.0.docx
 72017abe683a678656ed42bb8653c9b39c3247562eaaa8196d9a93b558b6cd9c  reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.1.docx
 f8a31e4219284a00dffc78eb97843291bc623101b1cb0ee00de9f9f1f570852b  reports/SonarQube MCP Server/SonarQube-MCP-Server-1.24.0.3152-VSCode-VisualStudio-2026-08-05-v1.2.docx

@@ -204,6 +204,16 @@
       "word_pages": 27
     },
     {
+      "assessment": "Postman MCP Server",
+      "target_version": "2.13.0 local; hosted US/EU build undisclosed",
+      "assessment_date": "2026-10-07",
+      "report_version": "1.0",
+      "classification": "PUBLIC",
+      "path": "reports/Postman MCP Server/Postman-MCP-Server-VSCode-VisualStudio-2.13.0-2026-10-07-v1.0.docx",
+      "sha256": "99e48658ace67792d9068fdc6dee7d667269239cf5ac07f4a7bd2513bf81e954",
+      "word_pages": 39
+    },
+    {
       "assessment": "Serena MCP",
       "target_version": "1.6.1",
       "assessment_date": "2026-07-27",

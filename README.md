@@ -43,6 +43,7 @@ reports—not the private assessment workspace or evidence archive.
 | Netdata MCP | 2.10.4 | [DOCX](<reports/Netdata/Netdata-MCP-2.10.4-2026-07-25-v1.0.docx>) |
 | PostgreSQL | 1.26.0 | [DOCX](<reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.0.docx>) |
 | PostgreSQL | 1.26.0 | [DOCX](<reports/PostgreSQL/PostgreSQL-1.26.0-VSCode-2026-07-29-v1.1.docx>) |
+| Postman MCP Server | 2.13.0 local; hosted US/EU build undisclosed | [DOCX](<reports/Postman MCP Server/Postman-MCP-Server-VSCode-VisualStudio-2.13.0-2026-10-07-v1.0.docx>) |
 | Serena MCP | 1.6.1 | [DOCX](<reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.0.docx>) |
 | Serena MCP | 1.6.1 | [DOCX](<reports/Serena MCP/Serena-MCP-1.6.1-VSCode-VisualStudio-2026-07-27-v1.1.docx>) |
 | SonarQube MCP Server | 1.24.0.3152 | [DOCX](<reports/SonarQube MCP Server/SonarQube-MCP-Server-1.24.0.3152-VSCode-VisualStudio-2026-08-05-v1.2.docx>) |
