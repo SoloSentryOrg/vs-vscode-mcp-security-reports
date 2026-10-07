@@ -1,5 +1,6 @@
 {
   "hosts": [
+    "api.github.com",
     "atlas.mitre.org",
     "cdn.dm.dynatrace.com",
     "cheatsheetseries.owasp.org",
@@ -25,6 +26,7 @@
     "ico.org.uk",
     "learn.microsoft.com",
     "learn.netdata.cloud",
+    "learning.postman.com",
     "marketplace.visualstudio.com",
     "modelcontextprotocol.io",
     "msrc.microsoft.com",
@@ -55,6 +57,7 @@
     "www.netdata.cloud",
     "www.nist.gov",
     "www.npmjs.com",
+    "www.postman.com",
     "www.prarulebook.co.uk",
     "www.sonarsource.com"
   ]
