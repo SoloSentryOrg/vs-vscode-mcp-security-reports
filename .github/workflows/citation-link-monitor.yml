@@ -1,5 +1,6 @@
 name: Citation Link Monitor
-run-name: ${{ inputs.report_path && format('Citation Link Monitor: {0}', inputs.report_path) || 'Citation Link Monitor' }}
+run-name: >-
+  ${{ inputs.report_path && format('Citation Link Monitor: {0}', inputs.report_path) || 'Citation Link Monitor' }}
 
 on:
   schedule:
