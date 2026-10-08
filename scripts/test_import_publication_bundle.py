@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import tempfile
 import unittest
 import zipfile
@@ -11,6 +12,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import import_publication_bundle as importer
+from citation_policy_binding import PolicyError
 from publication_catalogue import (
     CATALOGUE_BEGIN,
     CATALOGUE_END,
@@ -21,6 +23,36 @@ from test_validate_public_reports import RELATIONSHIPS, write_docx
 
 
 class PublicationBundleImporterTests(unittest.TestCase):
+    def test_v2_schema_and_importer_both_accept_supported_colon_request_id(self) -> None:
+        release = self._write_bundle(assessment="Serena")
+        release["request_id"] = "Serena MCP: the IDE for your agent/2026-07-26-v1.0"
+        (self.bundle / "release.json").write_text(json.dumps(release))
+        schema_path = Path(importer.__file__).resolve().parents[1] / "schemas/publication-bundle-v2.schema.json"
+        schema = json.loads(schema_path.read_text())
+        self.assertIsNotNone(re.fullmatch(schema["properties"]["request_id"]["pattern"], release["request_id"]))
+        self.assertTrue(importer.import_bundle(self.bundle, check_only=True).startswith("PASS:"))
+
+    def test_v2_policy_is_independently_checked_twice_before_import(self) -> None:
+        release = self._write_bundle()
+        release.update(schema_version=2, citation_policy={"commit": "b" * 40, "sha256": "c" * 64})
+        (self.bundle / "release.json").write_text(json.dumps(release))
+        with patch.object(importer, "validate_policy_binding", return_value={"a.example"}) as verify:
+            result = importer.import_bundle(self.bundle, check_only=True)
+        self.assertTrue(result.startswith("PASS:"))
+        self.assertEqual(verify.call_count, 2)
+        self.assertFalse((self.root / release["report"]["path"]).exists())
+
+    def test_v2_stale_policy_stops_before_catalogue_mutation(self) -> None:
+        release = self._write_bundle()
+        release.update(schema_version=2, citation_policy={"commit": "b" * 40, "sha256": "c" * 64})
+        (self.bundle / "release.json").write_text(json.dumps(release))
+        before = (self.root / "reports/index.json").read_bytes()
+        for responses in [[PolicyError("stale")], [{"a.example"}, PolicyError("changed")]]:
+            with patch.object(importer, "validate_policy_binding", side_effect=responses), self.assertRaises(importer.ImportError):
+                importer.import_bundle(self.bundle)
+            self.assertEqual((self.root / "reports/index.json").read_bytes(), before)
+            self.assertFalse((self.root / release["report"]["path"]).exists())
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -50,6 +82,7 @@ class PublicationBundleImporterTests(unittest.TestCase):
             patch.object(importer, "README", self.root / "README.md"),
             patch.object(importer, "load_custom_xml_allowlist", return_value=set()),
             patch.object(importer, "load_hyperlink_host_allowlist", return_value=set()),
+            patch.object(importer, "validate_policy_binding", return_value=set()),
         ]
         for active_patch in self._patches:
             active_patch.start()
@@ -88,7 +121,8 @@ class PublicationBundleImporterTests(unittest.TestCase):
             "word_pages": 12,
         }
         release = {
-            "schema_version": 1,
+            "schema_version": 2,
+            "citation_policy": {"commit": "b" * 40, "sha256": "c" * 64},
             "request_id": f"{assessment}/2026-07-26-v1.0",
             "producer_revision": "a" * 40,
             "consumer_repository": importer.REPOSITORY,
@@ -97,6 +131,56 @@ class PublicationBundleImporterTests(unittest.TestCase):
         }
         (self.bundle / "release.json").write_text(json.dumps(release), encoding="utf-8")
         return release
+
+    def test_v1_is_readable_but_cannot_grant_current_import_readiness(self) -> None:
+        release = self._write_bundle(); release["schema_version"] = 1; del release["citation_policy"]
+        (self.bundle / "release.json").write_text(json.dumps(release))
+        before = (self.root / "reports/index.json").read_bytes()
+        self.assertTrue(importer.inspect_legacy_bundle(self.bundle).startswith("INSPECTED:"))
+        for check in [False, True]:
+            with self.assertRaisesRegex(importer.ImportError, "v2 bundle"):
+                importer.import_bundle(self.bundle, check_only=check)
+        self.assertEqual((self.root / "reports/index.json").read_bytes(), before)
+
+    def test_legacy_policy_observation_does_not_destroy_historical_readability(self) -> None:
+        release = self._write_bundle(relationships=RELATIONSHIPS.replace("http://example.com/report", "https://a.example/report"))
+        release["schema_version"] = 1; del release["citation_policy"]
+        (self.bundle / "release.json").write_text(json.dumps(release))
+        before = (self.root / "reports/index.json").read_bytes()
+        result = importer.inspect_legacy_bundle(self.bundle)
+        self.assertIn("current safety observations: 1", result)
+        self.assertIn("not current import readiness", result)
+        self.assertEqual((self.root / "reports/index.json").read_bytes(), before)
+
+    def test_source_swap_during_validation_cannot_import_unsafe_bytes(self) -> None:
+        release = self._write_bundle(relationships=RELATIONSHIPS)
+        source = self.bundle / release["report_file"]; unsafe = source.read_bytes()
+        safe_path = Path(self.temporary.name) / "safe.docx"; write_docx(safe_path)
+        safe_bytes = safe_path.read_bytes(); real = importer.validate_docx
+        def swap(path, *args, **kwargs):
+            source.write_bytes(safe_bytes)
+            try:
+                return real(path, *args, **kwargs)
+            finally:
+                source.write_bytes(unsafe)
+        before = (self.root / "reports/index.json").read_bytes()
+        with patch.object(importer, "validate_docx", side_effect=swap), self.assertRaisesRegex(importer.ImportError, "unsafe external hyperlink"):
+            importer.import_bundle(self.bundle)
+        self.assertEqual((self.root / "reports/index.json").read_bytes(), before)
+        self.assertFalse((self.root / release["report"]["path"]).exists())
+
+    def test_source_swap_before_copy_does_not_change_validated_snapshot(self) -> None:
+        release = self._write_bundle(); source = self.bundle / release["report_file"]
+        original = source.read_bytes(); malicious = Path(self.temporary.name) / "unsafe.docx"
+        write_docx(malicious, relationships=RELATIONSHIPS)
+        real = importer._prepare_destination
+        def swap(path, destination):
+            source.write_bytes(malicious.read_bytes())
+            return real(path, destination)
+        with patch.object(importer, "_prepare_destination", side_effect=swap):
+            result = importer.import_bundle(self.bundle)
+        self.assertTrue(result.startswith("IMPORTED:"))
+        self.assertEqual((self.root / release["report"]["path"]).read_bytes(), original)
 
     def test_successful_import_is_deterministic_and_byte_identical(self) -> None:
         release = self._write_bundle()
@@ -213,7 +297,7 @@ class PublicationBundleImporterTests(unittest.TestCase):
 
     def test_rejects_wrong_schema_consumer_digest_and_path(self) -> None:
         cases = (
-            ("schema_version", 2, "unsupported"),
+            ("schema_version", 3, "unsupported"),
             ("consumer_repository", "Other/repo", "wrong consumer"),
         )
         for field, value, message in cases:

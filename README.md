@@ -94,6 +94,19 @@ identifiers.
 - Publication bundles contain exactly `release.json` and one byte-identical
   DOCX. The importer validates the bundle before mutating repository content
   and never retains producer provenance or the bundle manifest.
+- New imports and `--check` readiness require the v2 bundle contract. The
+  consumer independently verifies its current protected-main policy commit and
+  digest, requires matching local policy, and checks again before catalogue
+  preparation. Bundle metadata cannot supply trusted hosts or override DOCX
+  safety checks. Report bytes are acquired once into private read-only staging
+  for hashing, validation and copying.
+- Use `python3 scripts/import_publication_bundle.py <bundle-directory>
+  --inspect-legacy` only to inspect archived v1 digest/metadata. Current safety
+  discrepancies are observations; inspection never grants current readiness
+  or changes the catalogue. New publication requires current v2 preparation.
+- Roll back incorrect implementation through a protected PR and suspend affected
+  imports. Keep historical public versions; use a new versioned report or a
+  protected revert rather than rewriting published bytes or relaxing allowlists.
 - New hyperlink hosts or custom-XML digests require a separate reviewed
   governance pull request before a report that depends on them is imported.
 - Report publication remains pull-request- and human-merge-controlled; the
