@@ -47,6 +47,8 @@ def strict_json(raw: bytes):
 
 
 def _api(path: str):
+    # Fixed origin and explicit default context enforce certificate/hostname verification.
+    # nosemgrep: python.lang.security.audit.httpsconnection-detected.httpsconnection-detected
     connection = http.client.HTTPSConnection("api.github.com", timeout=10, context=ssl.create_default_context())
     try:
         connection.request("GET", path, headers={"Accept": "application/vnd.github+json",
@@ -81,6 +83,8 @@ def _protected_policy():
     raw = base64.b64decode(encoded.replace("\n", ""), validate=True)
     if not raw or len(raw) > MAX_POLICY_BYTES:
         raise PolicyError("consumer policy exceeds bound")
+    # Git blob compatibility identifier only; protected policy trust binds SHA-256 below.
+    # nosemgrep: python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1
     blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw, usedforsecurity=False).hexdigest()
     if item.get("sha") != blob:
         raise PolicyError("consumer policy Git blob identity mismatch")

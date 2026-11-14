@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import json
+import ssl
 import subprocess
 import tempfile
 import unittest
@@ -21,8 +22,37 @@ class PolicyBindingTests(unittest.TestCase):
         branch = {"protected": True, "commit": {"sha": COMMIT}}
         item = {"type": "file", "path": policy.POLICY_PATH, "encoding": "base64",
                 "content": base64.b64encode(RAW).decode(),
+                # Synthetic Git object ID, not an authentication or signature primitive.
+                # nosemgrep: python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1
                 "sha": hashlib.sha1(b"blob " + str(len(RAW)).encode() + b"\0" + RAW, usedforsecurity=False).hexdigest()}
         return branch, item
+
+    def test_api_requires_fixed_origin_and_verified_tls(self):
+        with patch.object(policy.http.client, "HTTPSConnection") as factory:
+            connection = factory.return_value
+            response = connection.getresponse.return_value
+            response.status = 200
+            response.read.return_value = b'{"ok":true}'
+            self.assertEqual(policy._api(policy.ROOT_API + "/branches/main"), {"ok": True})
+        self.assertEqual(factory.call_args.args, ("api.github.com",))
+        self.assertEqual(factory.call_args.kwargs["timeout"], 10)
+        context = factory.call_args.kwargs["context"]
+        self.assertTrue(context.check_hostname)
+        self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+        response.read.assert_called_once_with(policy.MAX_API_BYTES + 1)
+        connection.close.assert_called_once_with()
+
+    def test_api_rejects_redirects_without_reading_or_following(self):
+        for status in (301, 302, 303, 307, 308):
+            with self.subTest(status=status), patch.object(policy.http.client, "HTTPSConnection") as factory:
+                connection = factory.return_value
+                response = connection.getresponse.return_value
+                response.status = status
+                with self.assertRaises(policy.PolicyError):
+                    policy._api(policy.ROOT_API + "/branches/main")
+                self.assertEqual(connection.request.call_count, 1)
+                response.read.assert_not_called()
+                connection.close.assert_called_once_with()
 
     def test_exact_protected_policy_and_git_blob(self):
         branch, item = self.fixture()
