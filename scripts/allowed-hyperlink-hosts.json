@@ -1,6 +1,7 @@
 {
   "hosts": [
     "api.github.com",
+    "asvs.owasp.org",
     "atlas.mitre.org",
     "cdn.dm.dynatrace.com",
     "cheatsheetseries.owasp.org",
@@ -33,6 +34,7 @@
     "nvd.nist.gov",
     "nvlpubs.nist.gov",
     "oraios.github.io",
+    "owasp.github.io",
     "owasp.org",
     "pkg.go.dev",
     "policies.google.com",
